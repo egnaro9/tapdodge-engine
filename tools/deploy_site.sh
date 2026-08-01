@@ -23,13 +23,22 @@ HASH="$(shasum -a 256 "$JS" | cut -c1-12)"
 
 mkdir -p "$DEST"
 cp "$JS" "$DEST/tapdodge.js"
-cp web/site/index.html "$DEST/index.html"
-sed "s#from \"\./tapdodge\.js\"#from \"./tapdodge.js?v=$HASH\"#" web/site/game.js > "$DEST/game.js"
 
-if ! grep -q "tapdodge.js?v=$HASH" "$DEST/game.js"; then
-  echo "error: the import in $DEST/game.js was not stamped — refusing a deploy that can serve" >&2
-  echo "       a cached engine against a fresh page. Check the import line in web/site/game.js." >&2
-  exit 1
-fi
+# Every asset carries the stamp; only index.html does not, because it is the entry point and
+# nothing can version it from outside. Stamping tapdodge.js alone is not enough: game.js is
+# what imports it, so a cached game.js pulls in the unversioned URL and both stay stale
+# together. That is exactly what happened on the first attempt at this fix.
+sed "s#from \"\./tapdodge\.js\"#from \"./tapdodge.js?v=$HASH\"#" web/site/game.js > "$DEST/game.js"
+sed "s#src=\"\./game\.js\"#src=\"./game.js?v=$HASH\"#" web/site/index.html > "$DEST/index.html"
+
+for check in "$DEST/game.js:tapdodge.js?v=$HASH" "$DEST/index.html:game.js?v=$HASH"; do
+  file="${check%%:*}"
+  want="${check#*:}"
+  if ! grep -q "$want" "$file"; then
+    echo "error: $file was not stamped with '$want' — refusing a deploy that can serve a" >&2
+    echo "       cached asset against a fresh page. Check the reference in web/site/." >&2
+    exit 1
+  fi
+done
 
 echo "deployed to $DEST (engine $HASH)"
