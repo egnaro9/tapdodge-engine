@@ -62,9 +62,12 @@ a rebuilt engine lands at a URL the browser already has cached, so a visitor get
 running an old engine — which happened on this page's first deploy and looked convincingly
 like a bug that was not there.
 
+The full story, with the two blind tests and what replaced them, is in
+[`docs/field-note-determinism.md`](docs/field-note-determinism.md).
+
 ### It was falsified before being trusted
 
-Reverting `Rng` to `java.util.Random` and re-running:
+Reverting `Rng` to `java.util.Random` and re-running — or, without touching any code, diffing against the recording of that build committed at [`docs/diverged-trace.json`](docs/diverged-trace.json):
 
 ```
 the two builds disagree (69 differences):
