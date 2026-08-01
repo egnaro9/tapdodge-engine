@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-<title>Tap Dodge Rush — the shipped game's engine, in your browser</title>
+<title>Play Tap Dodge Rush — SeraphLight Studios</title>
 <meta name="description" content="The Google Play game's rules engine, compiled from Java to WebAssembly-era JavaScript with TeaVM and drawn on a canvas. Same compiled logic as the Android build.">
 <style>
   :root{
@@ -18,28 +18,33 @@
   }
   *{box-sizing:border-box}
   body{margin:0; background:var(--ink); color:var(--fg); font-family:var(--sans);
-       display:flex; flex-direction:column; align-items:center; min-height:100dvh}
+       display:flex; flex-direction:column; align-items:center}
+  /* Header and play field share exactly one screen, so the board is never half below the
+     fold on a phone. The prose sits after it, where scrolling to it is a choice. */
+  .above{display:flex; flex-direction:column; align-items:center;
+         height:100dvh; width:100%; min-height:0}
   a{color:var(--amber)}
   .back{position:fixed; top:12px; left:14px; z-index:99; font-family:var(--mono);
         font-size:13px; font-weight:600; color:var(--amber); background:rgba(14,19,22,.86);
         border:1px solid var(--amber-line); border-radius:4px; padding:6px 11px;
         text-decoration:none; backdrop-filter:blur(4px)}
-  header{max-width:60ch; padding:64px 20px 14px; text-align:center}
+  header{max-width:60ch; padding:56px 20px 10px; text-align:center; flex:0 0 auto}
   h1{font-family:var(--mono); font-size:26px; margin:0 0 10px}
   .lede{color:var(--fg-dim); font-size:15px; line-height:1.55; margin:0}
-  .stage{flex:1; display:flex; align-items:center; justify-content:center;
-         width:100%; padding:10px 12px 4px; min-height:52vh}
+  .stage{flex:1 1 0; min-height:0; display:flex; align-items:center; justify-content:center;
+         width:100%; padding:6px 12px 10px}
   canvas{background:#000; border:1px solid var(--line); border-radius:8px;
          touch-action:none; display:block}
-  footer{max-width:64ch; padding:12px 20px 40px; color:var(--fg-dim);
+  footer{max-width:64ch; padding:26px 20px 40px; color:var(--fg-dim);
          font-size:13.5px; line-height:1.6; text-align:center}
   code{font-family:var(--mono); font-size:.92em; color:var(--fg)}
   .hint{font-family:var(--mono); font-size:12px; color:var(--fg-dim); margin-top:8px}
 </style>
 </head>
 <body>
-<a class="back" href="https://egnaro9.github.io" aria-label="Back to portfolio">← Portfolio</a>
+<a class="back" href="../" aria-label="Back to the Tap Dodge Rush page">← Tap Dodge Rush</a>
 
+<div class="above">
 <header>
   <h1>Tap Dodge Rush</h1>
   <p class="lede">The rules running below are the <strong>same compiled engine</strong> as the
@@ -49,16 +54,23 @@
 </header>
 
 <div class="stage"><canvas id="game" width="1080" height="1920"></canvas></div>
+</div>
 
 <footer>
   <p><strong>What differs from the Play build.</strong> The shipped game sells a continue through
     a rewarded ad. There are no ads here and free continues would make this score mean something
     other than the one on your phone, so the web build has none — the engine's
     <code>canUseContinue()</code> is simply never called.</p>
+  <p><strong>Why you can believe "the same engine".</strong> The rules live in one module with
+    no Android and no TeaVM on its classpath. A test drives a scripted 600-frame game on the JVM,
+    records the score and every obstacle position at 11 checkpoints, and a Node script replays the
+    identical run through <em>this page's</em> <code>tapdodge.js</code>. The two traces are diffed
+    on every push: counts and scores exactly, positions to a hundredth of a pixel.</p>
+  <p>It was written because the builds had already drifted — the browser used to play a different
+    game from the same seed — and it is checked in the state where reverting that fix turns it red.</p>
   <p><a href="https://play.google.com/store/apps/details?id=com.seraphlight.tapdodgerush">Get it on Google Play</a>
-    · <a href="https://github.com/egnaro9/Tap-Dodge-Rush">source</a>
-    · the rules live in <code>:engine</code>, with no Android on its classpath — which is what
-    lets one rulebook drive both builds.</p>
+    · <a href="https://github.com/egnaro9/tapdodge-engine">engine source</a>
+    · <a href="https://github.com/egnaro9/tapdodge-engine/blob/main/tools/compare_trace.mjs">the check</a></p>
 </footer>
 
 <script type="module" src="./game.js"></script>
