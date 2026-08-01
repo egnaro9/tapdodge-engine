@@ -56,6 +56,12 @@ Three pieces, arranged so neither side can quietly drift:
 The Node script imports `web/build/generated/teavm/js/tapdodge.js` — the artifact the web
 build ships, not a re-implementation of it.
 
+Publishing goes through [`tools/deploy_site.sh`](tools/deploy_site.sh), which runs that check
+before it copies anything and stamps the engine import with a content hash. Without the stamp
+a rebuilt engine lands at a URL the browser already has cached, so a visitor gets a fresh page
+running an old engine — which happened on this page's first deploy and looked convincingly
+like a bug that was not there.
+
 ### It was falsified before being trusted
 
 Reverting `Rng` to `java.util.Random` and re-running:
