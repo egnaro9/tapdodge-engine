@@ -40,49 +40,52 @@ function pointerX(ev) {
   return ((ev.clientX - r.left) / r.width) * W;
 }
 
-// The game's own sounds, the same files the Android build plays. An earlier version of this
-// page synthesised square-wave blips instead, which sounded nothing like the game.
-const sfx = (src, volume) => {
-  const a = new Audio(src);
-  a.volume = volume;
-  a.preload = "auto";
-  return a;
-};
-const scoreSound = sfx("./score.wav", 0.5);
-const deathSound = sfx("./death.wav", 0.6);
-
-// Music is 2.6MB, so it is not fetched until the first tap — which is also the gesture
-// browsers require before any of this is allowed to make noise.
+// Music only, which is what the shipped game plays. score.wav and death.wav are in the app's
+// res/raw but nothing calls them — GameView exposes setSoundCallbacks and MainActivity never
+// invokes it — so the sounds an earlier version used are orphaned assets. Playing them here
+// would give the browser build feedback the phone does not have.
 let bgm = null;
 let muted = localStorage.getItem("tapdodge:muted") === "1";
 
-function play(sample) {
-  if (muted) return;
-  try {
-    sample.currentTime = 0;
-    sample.play().catch(() => {});   // a rejected play is not worth breaking a frame over
-  } catch { /* audio is a nicety */ }
+function musicButton() {
+  const btn = document.getElementById("mute");
+  if (!btn) return;
+  btn.textContent = muted ? "♪ off" : "♪ on";
+  btn.setAttribute("aria-pressed", String(muted));
 }
 
 function startMusic() {
-  if (muted || bgm) return;
-  bgm = new Audio("./bgm_loop.ogg");
-  bgm.loop = true;
-  bgm.volume = 0.15;                 // the same level MainActivity sets on the phone
+  if (muted) return;
+  if (!bgm) {
+    bgm = new Audio("./bgm_loop.ogg");
+    bgm.loop = true;
+    bgm.volume = 0.15;               // the level MainActivity sets on the phone
+  }
+  // Always retry play(): a call made before the user has interacted is rejected and stays
+  // rejected, so creating the element early and never calling play() again is how the music
+  // silently failed to start.
   bgm.play().catch(() => {});
+}
+
+function stopMusic() {
+  if (bgm) bgm.pause();
 }
 
 function setMuted(next) {
   muted = next;
   localStorage.setItem("tapdodge:muted", muted ? "1" : "0");
-  if (bgm) bgm.muted = muted;
-  if (!muted && !bgm) startMusic();
-  const btn = document.getElementById("mute");
-  if (btn) {
-    btn.textContent = muted ? "♪ off" : "♪ on";
-    btn.setAttribute("aria-pressed", String(muted));
-  }
+  if (muted) stopMusic();
+  else if (started) startMusic();
+  musicButton();
 }
+
+// Leaving the page must stop the sound. A background tab keeps playing audio by design, so
+// without this the music follows you out of the tab and there is no visible way to stop it.
+document.addEventListener("visibilitychange", () => {
+  if (document.hidden) stopMusic();
+  else if (!muted && started) startMusic();
+});
+addEventListener("pagehide", stopMusic);
 
 function draw(s) {
   ctx.fillStyle = s.hitFlash > 0 ? "rgb(60,0,0)" : "#000";
@@ -153,11 +156,8 @@ function frame(now) {
 
   engine.update(now, elapsed);
 
-  if (engine.consumeScored() >= 0) play(scoreSound);
-  if (engine.consumeDeath()) {
-    play(deathSound);
-    if (navigator.vibrate) navigator.vibrate(40);
-  }
+  engine.consumeScored();
+  if (engine.consumeDeath() && navigator.vibrate) navigator.vibrate(40);
 
   const s = JSON.parse(engine.state());
   draw(s);
@@ -181,7 +181,7 @@ function begin() {
 function boot() {
   fit();
   engine.create(0, W, H);   // the only setBounds this page performs
-  setMuted(muted);
+  musicButton();     // reflect the stored preference; do NOT touch audio before a gesture
   document.getElementById("mute").addEventListener("click", () => setMuted(!muted));
   engine.setBestScore(Number(localStorage.getItem(BEST_KEY) || 0));
   last = performance.now();

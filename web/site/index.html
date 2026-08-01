@@ -83,6 +83,23 @@
     · <a href="https://github.com/egnaro9/tapdodge-engine/blob/main/tools/compare_trace.mjs">the check</a></p>
 </footer>
 
-<script type="module" src="./game.js"></script>
+<script type="module">
+  // index.html is the one file that cannot be versioned from outside, and GitHub Pages serves
+  // it with max-age=600. A stale copy pinned the page to an old game.js URL, so fixes shipped
+  // and browsers kept running the previous build — the reason a removed sound kept playing.
+  //
+  // So the entry point holds no version at all. It reads one tiny file with cache:"no-store"
+  // and imports whatever that names. A cached index.html still lands on the current build,
+  // because the only thing that has to be fresh is 26 bytes.
+  const bust = async () => {
+    try {
+      const v = await (await fetch("./version.json", { cache: "no-store" })).json();
+      return `./game.js?v=${v.game}`;
+    } catch {
+      return `./game.js?t=${Date.now()}`;   // no manifest: take the slow path over a stale one
+    }
+  };
+  import(await bust());
+</script>
 </body>
 </html>

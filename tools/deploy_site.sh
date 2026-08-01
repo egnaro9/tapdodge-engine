@@ -19,7 +19,12 @@ cd "$ROOT"
 ./gradlew --quiet :web:check
 
 JS="web/build/generated/teavm/js/tapdodge.js"
-HASH="$(shasum -a 256 "$JS" | cut -c1-12)"
+
+# Each asset is stamped with ITS OWN hash. Stamping everything with the engine's hash meant a
+# change to game.js alone kept the same URL, so browsers kept serving the cached old file --
+# which is exactly how a fixed page shipped and still behaved like the broken one.
+hash_of() { shasum -a 256 "$1" | cut -c1-12; }
+ENGINE_HASH="$(hash_of "$JS")"
 
 mkdir -p "$DEST"
 cp "$JS" "$DEST/tapdodge.js"
@@ -37,10 +42,15 @@ done
 # nothing can version it from outside. Stamping tapdodge.js alone is not enough: game.js is
 # what imports it, so a cached game.js pulls in the unversioned URL and both stay stale
 # together. That is exactly what happened on the first attempt at this fix.
-sed "s#from \"\./tapdodge\.js\"#from \"./tapdodge.js?v=$HASH\"#" web/site/game.js > "$DEST/game.js"
-sed "s#src=\"\./game\.js\"#src=\"./game.js?v=$HASH\"#" web/site/index.html > "$DEST/index.html"
+sed "s#from \"\./tapdodge\.js\"#from \"./tapdodge.js?v=$ENGINE_HASH\"#" web/site/game.js > "$DEST/game.js"
+GAME_HASH="$(hash_of "$DEST/game.js")"
+cp web/site/index.html "$DEST/index.html"
 
-for check in "$DEST/game.js:tapdodge.js?v=$HASH" "$DEST/index.html:game.js?v=$HASH"; do
+# The manifest the page reads with cache:"no-store". This is the only file that must never be
+# cached, and it is small enough that fetching it every load costs nothing.
+printf '{"game":"%s","engine":"%s"}\n' "$GAME_HASH" "$ENGINE_HASH" > "$DEST/version.json"
+
+for check in "$DEST/game.js:tapdodge.js?v=$ENGINE_HASH" "$DEST/version.json:$GAME_HASH"; do
   file="${check%%:*}"
   want="${check#*:}"
   if ! grep -q "$want" "$file"; then
@@ -50,4 +60,4 @@ for check in "$DEST/game.js:tapdodge.js?v=$HASH" "$DEST/index.html:game.js?v=$HA
   fi
 done
 
-echo "deployed to $DEST (engine $HASH)"
+echo "deployed to $DEST (engine $ENGINE_HASH, page $GAME_HASH)"
