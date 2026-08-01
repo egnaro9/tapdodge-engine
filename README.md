@@ -30,6 +30,8 @@ cannot observe a disagreement between runtimes, no matter how large.
 
 ## The check that does work
 
+![the check passing, then the same command failing against the pre-fix recording](docs/demo.gif)
+
 ```bash
 ./gradlew :web:parityCheck
 ```
