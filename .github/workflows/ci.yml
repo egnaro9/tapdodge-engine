@@ -1,0 +1,45 @@
+name: ci
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+  workflow_dispatch:
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: "17"
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "20"
+
+      - uses: gradle/actions/setup-gradle@v4
+
+      # :web:check runs the JVM suite, compiles the engine with TeaVM, and then diffs the
+      # two traces. The last of those is the only step that can notice the compilers
+      # disagreeing — see tools/compare_trace.mjs.
+      - name: Build, test, and check both builds agree
+        run: ./gradlew :web:check --no-daemon
+
+      - name: Publish the browser build
+        uses: actions/upload-artifact@v4
+        with:
+          name: tapdodge-js
+          path: web/build/generated/teavm/js/tapdodge.js
+
+      - name: Upload test results on failure
+        if: failure()
+        uses: actions/upload-artifact@v4
+        with:
+          name: test-results
+          path: |
+            engine/build/reports/tests/
+            engine/build/parity/

@@ -1,0 +1,66 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Tap Dodge Rush — the shipped game's engine, in your browser</title>
+<meta name="description" content="The Google Play game's rules engine, compiled from Java to WebAssembly-era JavaScript with TeaVM and drawn on a canvas. Same compiled logic as the Android build.">
+<style>
+  :root{
+    --ink:#0e1316; --panel:#141c21; --line:rgba(255,255,255,.09);
+    --fg:#dae2e4; --fg-dim:#8a989e; --amber:#f2a53c; --amber-line:rgba(242,165,60,.34);
+    --mono:ui-monospace,"SF Mono","JetBrains Mono",Menlo,monospace;
+    --sans:system-ui,-apple-system,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;
+  }
+  @media (prefers-color-scheme: light){
+    :root{ --ink:#e9edee; --panel:#f4f6f6; --line:rgba(12,26,32,.12);
+           --fg:#131c20; --fg-dim:#4d5a60; --amber:#b7761a; --amber-line:rgba(200,128,26,.4); }
+  }
+  *{box-sizing:border-box}
+  body{margin:0; background:var(--ink); color:var(--fg); font-family:var(--sans);
+       display:flex; flex-direction:column; align-items:center; min-height:100dvh}
+  a{color:var(--amber)}
+  .back{position:fixed; top:12px; left:14px; z-index:99; font-family:var(--mono);
+        font-size:13px; font-weight:600; color:var(--amber); background:rgba(14,19,22,.86);
+        border:1px solid var(--amber-line); border-radius:4px; padding:6px 11px;
+        text-decoration:none; backdrop-filter:blur(4px)}
+  header{max-width:60ch; padding:64px 20px 14px; text-align:center}
+  h1{font-family:var(--mono); font-size:26px; margin:0 0 10px}
+  .lede{color:var(--fg-dim); font-size:15px; line-height:1.55; margin:0}
+  .stage{flex:1; display:flex; align-items:center; justify-content:center;
+         width:100%; padding:10px 12px 4px; min-height:52vh}
+  canvas{background:#000; border:1px solid var(--line); border-radius:8px;
+         touch-action:none; display:block}
+  footer{max-width:64ch; padding:12px 20px 40px; color:var(--fg-dim);
+         font-size:13.5px; line-height:1.6; text-align:center}
+  code{font-family:var(--mono); font-size:.92em; color:var(--fg)}
+  .hint{font-family:var(--mono); font-size:12px; color:var(--fg-dim); margin-top:8px}
+</style>
+</head>
+<body>
+<a class="back" href="https://egnaro9.github.io" aria-label="Back to portfolio">← Portfolio</a>
+
+<header>
+  <h1>Tap Dodge Rush</h1>
+  <p class="lede">The rules running below are the <strong>same compiled engine</strong> as the
+    Android build on Google Play — one Java class, compiled to JavaScript by TeaVM, drawn here
+    on a canvas instead of an Android one.</p>
+  <p class="hint">drag, or ← → · space to start</p>
+</header>
+
+<div class="stage"><canvas id="game" width="1080" height="1920"></canvas></div>
+
+<footer>
+  <p><strong>What differs from the Play build.</strong> The shipped game sells a continue through
+    a rewarded ad. There are no ads here and free continues would make this score mean something
+    other than the one on your phone, so the web build has none — the engine's
+    <code>canUseContinue()</code> is simply never called.</p>
+  <p><a href="https://play.google.com/store/apps/details?id=com.seraphlight.tapdodgerush">Get it on Google Play</a>
+    · <a href="https://github.com/egnaro9/Tap-Dodge-Rush">source</a>
+    · the rules live in <code>:engine</code>, with no Android on its classpath — which is what
+    lets one rulebook drive both builds.</p>
+</footer>
+
+<script type="module" src="./game.js"></script>
+</body>
+</html>
