@@ -4,7 +4,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <title>Play Tap Dodge Rush — SeraphLight Studios</title>
-<meta name="description" content="The Google Play game's rules engine, compiled from Java to WebAssembly-era JavaScript with TeaVM and drawn on a canvas. Same compiled logic as the Android build.">
+<meta name="description" content="The rules of a shipped Google Play game, lifted into a module with no Android on its classpath and compiled to JavaScript by TeaVM, with a test that catches the two builds disagreeing.">
 <style>
   :root{
     --ink:#0e1316; --panel:#141c21; --line:rgba(255,255,255,.09);
@@ -47,9 +47,10 @@
 <div class="above">
 <header>
   <h1>Tap Dodge Rush</h1>
-  <p class="lede">The rules running below are the <strong>same compiled engine</strong> as the
-    Android build on Google Play — one Java class, compiled to JavaScript by TeaVM, drawn here
-    on a canvas instead of an Android one.</p>
+  <p class="lede">These are the game's actual rules, lifted out of the Android view into a
+    <strong>module with no Android on its classpath</strong> and compiled to JavaScript by TeaVM.
+    The Android app builds against that same module; the release currently on Google Play
+    predates the extraction and still carries the rules inline.</p>
   <p class="hint">drag, or ← → · space to start</p>
 </header>
 
@@ -61,11 +62,13 @@
     a rewarded ad. There are no ads here and free continues would make this score mean something
     other than the one on your phone, so the web build has none — the engine's
     <code>canUseContinue()</code> is simply never called.</p>
-  <p><strong>Why you can believe "the same engine".</strong> The rules live in one module with
-    no Android and no TeaVM on its classpath. A test drives a scripted 600-frame game on the JVM,
-    records the score and every obstacle position at 11 checkpoints, and a Node script replays the
-    identical run through <em>this page's</em> <code>tapdodge.js</code>. The two traces are diffed
-    on every push: counts and scores exactly, positions to a hundredth of a pixel.</p>
+  <p><strong>Why "one rulebook" is checkable.</strong> The rules live in one module with no
+    Android and no TeaVM on its classpath. A test drives a scripted 600-frame game on the JVM,
+    records the score, the player and every obstacle position at 11 checkpoints, and a Node
+    script replays the identical run through <em>this page's</em> <code>tapdodge.js</code>. The
+    two traces are diffed on every push: counts and scores exactly, positions to a hundredth of
+    a pixel. A second job diffs the module against the copy in the app's own repo, so the two
+    cannot drift apart unnoticed.</p>
   <p>It was written because the builds had already drifted — the browser used to play a different
     game from the same seed — and it is checked in the state where reverting that fix turns it red.</p>
   <p><a href="https://play.google.com/store/apps/details?id=com.seraphlight.tapdodgerush">Get it on Google Play</a>

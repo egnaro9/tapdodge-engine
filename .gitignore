@@ -1,6 +1,5 @@
 build/
 .gradle/
-.jqwik-database
 local.properties
 .idea/
 *.iml

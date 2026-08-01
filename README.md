@@ -68,11 +68,15 @@ Reverting `Rng` to `java.util.Random` and re-running:
 
 ```
 the two builds disagree (69 differences):
+  frame 60  obstacle 0 x: jvm=405.426 browser=304.426 (off by 101.0000)
   frame 90  obstacle 1 x: jvm=438.177 browser=74.177  (off by 364.0000)
+  …
   frame 250 obstacle 3 x: jvm=879.507 browser=167.507 (off by 712.0000)
   frame 360 score:        jvm=8       browser=6
   frame 360 running:      jvm=true    browser=false
+  … and 44 more
 ```
+(excerpted — the comparator prints the first 25 and a count)
 
 The golden-file assertion **passed** during that same run. It had to: the JVM's
 `java.util.Random` produces exactly what the hand-written LCG produces, so the JVM trace was
@@ -83,7 +87,7 @@ cross-runtime defect. Only the diff between runtimes can.
 
 | | |
 |---|---|
-| `engine/` | the rules. Plain Java 11, JUnit 5 + jqwik, **no dependency outside the JDK** |
+| `engine/` | the rules. Plain Java 11 and JUnit 5, **no main-source dependency outside the JDK** |
 | `web/` | the `@JSExport` wrapper and TeaVM config — kept out of `engine/` so that guarantee holds |
 | `tools/` | the browser half of the differential check |
 
@@ -97,7 +101,7 @@ grep -rn "android\|teavm" engine/src/main   # no matches
 
 ## What is not here
 
-The Android app — renderer, sound, haptics, billing, the rewarded-ad continue — is closed
+The Android app — renderer, sound, haptics, ads, the rewarded-ad continue — is closed
 source. This repo is the part the two builds share.
 
 The browser build has no continue for that reason: the shipped game sells one through a
