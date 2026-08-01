@@ -15,7 +15,7 @@ const BEST_KEY = "tapdodge:best";
 // width than on a 1080p phone and, worse, gave a board of aspect 1.78 against a phone's ~2.2,
 // so obstacles reached the player noticeably sooner. These are a common modern phone.
 const W = 1080;
-const H = 2280;
+const H = 2200;   // a Galaxy S23 (1080x2340) minus the status and nav bars
 
 let running = false;
 let last = 0;
