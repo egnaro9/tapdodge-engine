@@ -9,16 +9,21 @@ const canvas = document.getElementById("game");
 const ctx = canvas.getContext("2d", { alpha: false });
 const BEST_KEY = "tapdodge:best";
 
-// The engine's constants were tuned against a 1080-wide portrait phone. Rendering in
-// those coordinates and scaling the canvas keeps hitboxes, speeds and spawn rates
-// identical to the shipped game rather than "close enough".
+// The engine's constants are absolute pixels — PLAYER_SIZE is 80 whatever the board is —
+// so the board's dimensions are not a presentation choice, they are the difficulty. Android
+// passes the real view size; a hardcoded 1080x1920 here made the block a larger share of the
+// width than on a 1080p phone and, worse, gave a board of aspect 1.78 against a phone's ~2.2,
+// so obstacles reached the player noticeably sooner. These are a common modern phone.
 const W = 1080;
-const H = 1920;
+const H = 2280;
 
 let running = false;
 let last = 0;
 let started = false;
 
+// Presentation only. The engine's bounds are set once at boot and never touched again:
+// on a phone the browser's address bar hides and reappears as you scroll, which fires resize
+// and changes 100dvh, and re-bounding the engine there resized the board mid-game.
 function fit() {
   const wrap = canvas.parentElement;
   const scale = Math.min(wrap.clientWidth / W, wrap.clientHeight / H);
@@ -35,20 +40,48 @@ function pointerX(ev) {
   return ((ev.clientX - r.left) / r.width) * W;
 }
 
-function beep(freq, ms, gain = 0.04) {
+// The game's own sounds, the same files the Android build plays. An earlier version of this
+// page synthesised square-wave blips instead, which sounded nothing like the game.
+const sfx = (src, volume) => {
+  const a = new Audio(src);
+  a.volume = volume;
+  a.preload = "auto";
+  return a;
+};
+const scoreSound = sfx("./score.wav", 0.5);
+const deathSound = sfx("./death.wav", 0.6);
+
+// Music is 2.6MB, so it is not fetched until the first tap — which is also the gesture
+// browsers require before any of this is allowed to make noise.
+let bgm = null;
+let muted = localStorage.getItem("tapdodge:muted") === "1";
+
+function play(sample) {
+  if (muted) return;
   try {
-    const AC = window.AudioContext || window.webkitAudioContext;
-    if (!AC) return;
-    beep.ac = beep.ac || new AC();
-    const o = beep.ac.createOscillator();
-    const g = beep.ac.createGain();
-    o.type = "square";
-    o.frequency.value = freq;
-    g.gain.value = gain;
-    o.connect(g).connect(beep.ac.destination);
-    o.start();
-    o.stop(beep.ac.currentTime + ms / 1000);
-  } catch { /* audio is a nicety; never let it break the game */ }
+    sample.currentTime = 0;
+    sample.play().catch(() => {});   // a rejected play is not worth breaking a frame over
+  } catch { /* audio is a nicety */ }
+}
+
+function startMusic() {
+  if (muted || bgm) return;
+  bgm = new Audio("./bgm_loop.ogg");
+  bgm.loop = true;
+  bgm.volume = 0.15;                 // the same level MainActivity sets on the phone
+  bgm.play().catch(() => {});
+}
+
+function setMuted(next) {
+  muted = next;
+  localStorage.setItem("tapdodge:muted", muted ? "1" : "0");
+  if (bgm) bgm.muted = muted;
+  if (!muted && !bgm) startMusic();
+  const btn = document.getElementById("mute");
+  if (btn) {
+    btn.textContent = muted ? "♪ off" : "♪ on";
+    btn.setAttribute("aria-pressed", String(muted));
+  }
 }
 
 function draw(s) {
@@ -120,10 +153,9 @@ function frame(now) {
 
   engine.update(now, elapsed);
 
-  const scored = engine.consumeScored();
-  if (scored >= 0) beep(660, 45);
+  if (engine.consumeScored() >= 0) play(scoreSound);
   if (engine.consumeDeath()) {
-    beep(120, 220, 0.06);
+    play(deathSound);
     if (navigator.vibrate) navigator.vibrate(40);
   }
 
@@ -139,6 +171,7 @@ function frame(now) {
 
 function begin() {
   if (running) return;
+  startMusic();
   running = true;
   started = true;
   last = performance.now();
@@ -147,7 +180,9 @@ function begin() {
 
 function boot() {
   fit();
-  engine.create(0, W, H);
+  engine.create(0, W, H);   // the only setBounds this page performs
+  setMuted(muted);
+  document.getElementById("mute").addEventListener("click", () => setMuted(!muted));
   engine.setBestScore(Number(localStorage.getItem(BEST_KEY) || 0));
   last = performance.now();
   requestAnimationFrame(frame);

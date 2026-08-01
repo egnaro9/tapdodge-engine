@@ -24,6 +24,15 @@ HASH="$(shasum -a 256 "$JS" | cut -c1-12)"
 mkdir -p "$DEST"
 cp "$JS" "$DEST/tapdodge.js"
 
+# Sound files are the game's, not the engine's, so they live wherever the site is deployed
+# rather than in this repo. Warn loudly if they are missing: a silent game looks broken, and
+# the page tells the reader the music starts on their first tap.
+for a in bgm_loop.ogg score.wav death.wav; do
+  if [ ! -f "$DEST/$a" ]; then
+    echo "warning: $DEST/$a is missing — the page will load without it" >&2
+  fi
+done
+
 # Every asset carries the stamp; only index.html does not, because it is the entry point and
 # nothing can version it from outside. Stamping tapdodge.js alone is not enough: game.js is
 # what imports it, so a cached game.js pulls in the unversioned URL and both stay stale

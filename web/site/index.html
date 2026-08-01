@@ -39,19 +39,23 @@
          font-size:13.5px; line-height:1.6; text-align:center}
   code{font-family:var(--mono); font-size:.92em; color:var(--fg)}
   .hint{font-family:var(--mono); font-size:12px; color:var(--fg-dim); margin-top:8px}
+  #mute{position:fixed; top:12px; right:14px; z-index:99; font-family:var(--mono);
+        font-size:13px; font-weight:600; color:var(--amber); background:rgba(14,19,22,.86);
+        border:1px solid var(--amber-line); border-radius:4px; padding:6px 11px;
+        cursor:pointer; backdrop-filter:blur(4px)}
+  #mute[aria-pressed="true"]{color:var(--fg-dim); border-color:var(--line)}
 </style>
 </head>
 <body>
 <a class="back" href="../" aria-label="Back to the Tap Dodge Rush page">← Tap Dodge Rush</a>
+<button id="mute" type="button" aria-pressed="false" aria-label="Toggle sound">♪ on</button>
 
 <div class="above">
 <header>
   <h1>Tap Dodge Rush</h1>
-  <p class="lede">These are the game's actual rules, lifted out of the Android view into a
-    <strong>module with no Android on its classpath</strong> and compiled to JavaScript by TeaVM.
-    The Android app builds against that same module; the release currently on Google Play
-    predates the extraction and still carries the rules inline.</p>
-  <p class="hint">drag, or ← → · space to start</p>
+  <p class="lede">The real rules of a shipped Google Play game, lifted into a
+    <strong>module with no Android on its classpath</strong> and compiled to JavaScript by TeaVM.</p>
+  <p class="hint">drag, or ← → · space to start · music starts on your first tap</p>
 </header>
 
 <div class="stage"><canvas id="game" width="1080" height="1920"></canvas></div>
@@ -62,6 +66,9 @@
     a rewarded ad. There are no ads here and free continues would make this score mean something
     other than the one on your phone, so the web build has none — the engine's
     <code>canUseContinue()</code> is simply never called.</p>
+  <p><strong>What the Play Store has.</strong> That release predates the extraction and still
+    carries the rules inline in the Android view — the module below is what the app builds
+    against now, not what shipped in April. Same rules either way; this is the readable copy.</p>
   <p><strong>Why "one rulebook" is checkable.</strong> The rules live in one module with no
     Android and no TeaVM on its classpath. A test drives a scripted 600-frame game on the JVM,
     records the score, the player and every obstacle position at 11 checkpoints, and a Node
