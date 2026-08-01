@@ -32,6 +32,15 @@ public final class GameEngine {
     public static final float PLAYER_EASING = 0.22f;
     /** A run must reach this score before a continue may be offered. */
     public static final int MIN_CONTINUE_SCORE = 10;
+    /**
+     * Completed runs between interstitials.
+     *
+     * <p>Counted here rather than in the Activity so the cadence is a rule with a test, not a
+     * number buried in a click handler. One on every death would break the loop the game is
+     * built on — the value of "one more try" is that nothing stands between the tap and the
+     * next run.
+     */
+    public static final int INTERSTITIAL_EVERY = 3;
 
     /** Callbacks for things the platform owns: sound, haptics, the game-over screen. */
     public interface Listener {
@@ -56,6 +65,7 @@ public final class GameEngine {
     private boolean usedContinueThisRun, lastRunWasNewBest;
 
     private int score, bestScore, streakCount;
+    private int runsSinceInterstitial;
     private String lastRunRankTitle = "";
     private String rankUpTitle = "";
 
@@ -229,7 +239,28 @@ public final class GameEngine {
             bestScore = score;
             newBestPopupFrames = 40;
         }
+        runsSinceInterstitial++;
         listener.onGameOver(score, lastRunWasNewBest);
+    }
+
+    /**
+     * True once every {@link #INTERSTITIAL_EVERY} completed runs, and consumed by asking.
+     *
+     * <p>Consuming rather than reporting means the caller cannot show two interstitials for one
+     * cue by checking twice, and a caller that never asks simply never shows one — which is how
+     * the browser build, with no ads at all, ignores this without knowing it exists.
+     *
+     * <p>A continue happens <em>after</em> {@code endRun}, so taking one would otherwise count
+     * the same run twice and could put an interstitial immediately after a rewarded ad.
+     * {@link #useContinue} undoes the increment, which makes this a count of runs the player
+     * actually let end.
+     */
+    public boolean consumeInterstitialCue() {
+        if (runsSinceInterstitial < INTERSTITIAL_EVERY) {
+            return false;
+        }
+        runsSinceInterstitial = 0;
+        return true;
     }
 
     /** A continue is offered once per run, and only after the run was worth continuing. */
@@ -242,6 +273,12 @@ public final class GameEngine {
             return;
         }
         usedContinueThisRun = true;
+        // The run is resuming, not ending, so take back the increment endRun just made.
+        // Without this, watching a rewarded ad to continue moves the player closer to being
+        // shown an interstitial — charging them twice for one death.
+        if (runsSinceInterstitial > 0) {
+            runsSinceInterstitial--;
+        }
         gameOver = false;
         gameRunning = true;
         dying = false;
