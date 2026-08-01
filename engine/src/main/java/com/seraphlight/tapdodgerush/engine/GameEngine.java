@@ -78,6 +78,16 @@ public final class GameEngine {
     public void setBounds(int width, int height) {
         this.width = width;
         this.height = height;
+
+        // Until start() runs, the player has never been given a position, so it sits at the
+        // origin and every renderer faithfully draws a block in the top-left corner of the
+        // "TAP TO START" screen. Park it where the run will actually begin.
+        //
+        // Guarded on hasStarted because both renderers call setBounds every frame: doing this
+        // unconditionally would yank the player back to the middle on every tick.
+        if (!hasStarted) {
+            centrePlayer();
+        }
     }
 
     /** Restores the persisted best score. The platform owns where that came from. */

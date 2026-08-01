@@ -48,8 +48,10 @@ for (let i = 0; i < Math.min(jvm.length, js.length); i++) {
   for (const k of ["score", "streak", "running", "over"]) {
     exact(`${at} ${k}`, a[k], b[k]);
   }
-  near(`${at} px`, a.px, b.px);
-  maxDrift = Math.max(maxDrift, Math.abs(Number(a.px) - Number(b.px)));
+  for (const k of ["px", "py"]) {
+    near(`${at} ${k}`, a[k], b[k]);
+    maxDrift = Math.max(maxDrift, Math.abs(Number(a[k]) - Number(b[k])));
+  }
 
   exact(`${at} obstacle count`, a.obstacles.length, b.obstacles.length);
   for (let o = 0; o < Math.min(a.obstacles.length, b.obstacles.length); o++) {

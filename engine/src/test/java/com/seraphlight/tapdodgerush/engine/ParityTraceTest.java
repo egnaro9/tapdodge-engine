@@ -115,6 +115,7 @@ public class ParityTraceTest {
           .append(",\"running\":").append(e.isRunning())
           .append(",\"over\":").append(e.isGameOver())
           .append(",\"px\":").append(f3(e.playerX()))
+          .append(",\"py\":").append(f3(e.playerY()))
           .append(",\"obstacles\":[");
         boolean first = true;
         for (GameEngine.Obstacle o : e.obstacles()) {
