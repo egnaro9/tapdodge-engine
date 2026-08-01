@@ -29,10 +29,10 @@ ENGINE_HASH="$(hash_of "$JS")"
 mkdir -p "$DEST"
 cp "$JS" "$DEST/tapdodge.js"
 
-# Sound files are the game's, not the engine's, so they live wherever the site is deployed
+# The music file is the game's, not the engine's, so they live wherever the site is deployed
 # rather than in this repo. Warn loudly if they are missing: a silent game looks broken, and
 # the page tells the reader the music starts on their first tap.
-for a in bgm_loop.ogg score.wav death.wav; do
+for a in bgm_loop.ogg; do
   if [ ! -f "$DEST/$a" ]; then
     echo "warning: $DEST/$a is missing — the page will load without it" >&2
   fi
