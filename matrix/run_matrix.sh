@@ -113,6 +113,10 @@ run_case "F1_runtime_supplied_rng" "matrix/faults/F1_runtime_supplied_rng.patch"
 run_case "F2_shared_constant"      "matrix/faults/F2_shared_constant.patch"
 run_case "F3_untraced_cadence"     "matrix/faults/F3_untraced_cadence.patch"
 
+# Gradle prints absolute report paths into the log when tests fail. Strip the
+# machine-local prefix so committing the log never publishes a username.
+sed "s|file://$ROOT|file:///REDACTED/tapdodge-engine|g" "$LOG" > "$LOG.tmp" && mv "$LOG.tmp" "$LOG"
+
 {
   echo "# Fault-by-check matrix — run of $(date -u +%Y-%m-%dT%H:%M:%SZ)"
   echo

@@ -3,7 +3,7 @@ the JVM and browser builds agree across 11 checkpoints (largest float difference
 == F1_runtime_supplied_rng ==
 warning: Supported source version 'RELEASE_11' from annotation processor 'org.gradle.api.internal.tasks.compile.processing.TimeTrackingProcessor' less than -source '17'
 1 warning
-the two builds disagree (69 differences):
+the two builds disagree (70 differences):
   frame 60 obstacle 0 x: jvm=405.426 browser=304.426 (off by 101.0000)
   frame 90 obstacle 0 x: jvm=338.626 browser=237.626 (off by 101.0000)
   frame 90 obstacle 1 x: jvm=438.177 browser=74.177 (off by 364.0000)
@@ -29,7 +29,7 @@ the two builds disagree (69 differences):
   frame 360 score: jvm=8 browser=6
   frame 360 streak: jvm=8 browser=6
   frame 360 running: jvm=true browser=false
-  … and 44 more
+  … and 45 more
 == F2_shared_constant ==
 
 1 test completed, 1 failed
@@ -43,7 +43,7 @@ Execution failed for task ':engine:test'.
 * Try:
 > Run with --scan to get full insights.
 
-BUILD FAILED in 499ms
+BUILD FAILED in 511ms
 warning: Supported source version 'RELEASE_11' from annotation processor 'org.gradle.api.internal.tasks.compile.processing.TimeTrackingProcessor' less than -source '17'
 1 warning
 the JVM and browser builds agree across 11 checkpoints (largest float difference 0.0020, tolerance 0.01)
@@ -51,3 +51,16 @@ the JVM and browser builds agree across 11 checkpoints (largest float difference
 warning: Supported source version 'RELEASE_11' from annotation processor 'org.gradle.api.internal.tasks.compile.processing.TimeTrackingProcessor' less than -source '17'
 1 warning
 the JVM and browser builds agree across 11 checkpoints (largest float difference 0.0020, tolerance 0.01)
+
+3 tests completed, 3 failed
+
+FAILURE: Build failed with an exception.
+
+* What went wrong:
+Execution failed for task ':engine:test'.
+> There were failing tests. See the report at: file:///REDACTED/tapdodge-engine/engine/build/reports/tests/test/index.html
+
+* Try:
+> Run with --scan to get full insights.
+
+BUILD FAILED in 495ms
