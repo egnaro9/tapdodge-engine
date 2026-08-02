@@ -1,0 +1,52 @@
+diff --git a/engine/src/main/java/com/seraphlight/tapdodgerush/engine/Rng.java b/engine/src/main/java/com/seraphlight/tapdodgerush/engine/Rng.java
+index 10615db..9a4d689 100644
+--- a/engine/src/main/java/com/seraphlight/tapdodgerush/engine/Rng.java
++++ b/engine/src/main/java/com/seraphlight/tapdodgerush/engine/Rng.java
+@@ -17,39 +17,23 @@ package com.seraphlight.tapdodgerush.engine;
+  */
+ public final class Rng {
+ 
+-    private static final long MULTIPLIER = 0x5DEECE66DL;
+-    private static final long ADDEND = 0xBL;
+-    private static final long MASK = (1L << 48) - 1;
+-
+-    private long seed;
++    // FAULT F1: delegate to the platform's java.util.Random instead of the written-out
++    // LCG. On the JVM this is behaviour-identical (it IS the documented algorithm), so
++    // the JVM trace and the golden file do not move. TeaVM's implementation is not the
++    // JDK's, so the browser build plays a different game. This is the original bug.
++    private final java.util.Random r;
+ 
+     public Rng(long seed) {
+-        this.seed = (seed ^ MULTIPLIER) & MASK;
+-    }
+-
+-    private int next(int bits) {
+-        seed = (seed * MULTIPLIER + ADDEND) & MASK;
+-        return (int) (seed >>> (48 - bits));
++        this.r = new java.util.Random(seed);
+     }
+ 
+     /** Uniform in {@code [0, bound)}. */
+     public int nextInt(int bound) {
+-        if (bound <= 0) {
+-            throw new IllegalArgumentException("bound must be positive: " + bound);
+-        }
+-        if ((bound & -bound) == bound) {          // a power of two
+-            return (int) ((bound * (long) next(31)) >> 31);
+-        }
+-        int bits, val;
+-        do {                                       // reject the biased tail
+-            bits = next(31);
+-            val = bits % bound;
+-        } while (bits - val + (bound - 1) < 0);
+-        return val;
++        return r.nextInt(bound);
+     }
+ 
+     /** Uniform in {@code [0, 1)}. */
+     public float nextFloat() {
+-        return next(24) / ((float) (1 << 24));
++        return r.nextFloat();
+     }
+ }

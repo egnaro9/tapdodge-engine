@@ -1,0 +1,13 @@
+diff --git a/engine/src/main/java/com/seraphlight/tapdodgerush/engine/GameEngine.java b/engine/src/main/java/com/seraphlight/tapdodgerush/engine/GameEngine.java
+index 7cc87fe..f33ad1e 100644
+--- a/engine/src/main/java/com/seraphlight/tapdodgerush/engine/GameEngine.java
++++ b/engine/src/main/java/com/seraphlight/tapdodgerush/engine/GameEngine.java
+@@ -27,7 +27,7 @@ public final class GameEngine {
+     public static final float REFERENCE_FRAME_MS = 16f;
+ 
+     public static final float PLAYER_SIZE = 80f;
+-    public static final float PLAYER_BOTTOM_MARGIN = 220f;
++    public static final float PLAYER_BOTTOM_MARGIN = 221f;
+     /** Fraction of the frame's remaining distance the player covers per reference frame. */
+     public static final float PLAYER_EASING = 0.22f;
+     /** A run must reach this score before a continue may be offered. */

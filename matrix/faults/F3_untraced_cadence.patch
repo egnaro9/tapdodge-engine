@@ -1,0 +1,13 @@
+diff --git a/engine/src/main/java/com/seraphlight/tapdodgerush/engine/GameEngine.java b/engine/src/main/java/com/seraphlight/tapdodgerush/engine/GameEngine.java
+index 7cc87fe..c8d0ada 100644
+--- a/engine/src/main/java/com/seraphlight/tapdodgerush/engine/GameEngine.java
++++ b/engine/src/main/java/com/seraphlight/tapdodgerush/engine/GameEngine.java
+@@ -40,7 +40,7 @@ public final class GameEngine {
+      * built on — the value of "one more try" is that nothing stands between the tap and the
+      * next run.
+      */
+-    public static final int INTERSTITIAL_EVERY = 3;
++    public static final int INTERSTITIAL_EVERY = 4;
+ 
+     /** Callbacks for things the platform owns: sound, haptics, the game-over screen. */
+     public interface Listener {

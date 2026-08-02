@@ -1,0 +1,53 @@
+== baseline ==
+the JVM and browser builds agree across 11 checkpoints (largest float difference 0.0020, tolerance 0.01)
+== F1_runtime_supplied_rng ==
+warning: Supported source version 'RELEASE_11' from annotation processor 'org.gradle.api.internal.tasks.compile.processing.TimeTrackingProcessor' less than -source '17'
+1 warning
+the two builds disagree (69 differences):
+  frame 60 obstacle 0 x: jvm=405.426 browser=304.426 (off by 101.0000)
+  frame 90 obstacle 0 x: jvm=338.626 browser=237.626 (off by 101.0000)
+  frame 90 obstacle 1 x: jvm=438.177 browser=74.177 (off by 364.0000)
+  frame 120 obstacle 0 x: jvm=271.825 browser=170.826 (off by 100.9990)
+  frame 120 obstacle 1 x: jvm=409.486 browser=45.485 (off by 364.0010)
+  frame 120 obstacle 2 x: jvm=152.003 browser=474.002 (off by 321.9990)
+  frame 150 obstacle 0 x: jvm=205.025 browser=104.026 (off by 100.9990)
+  frame 150 obstacle 1 x: jvm=380.794 browser=16.793 (off by 364.0010)
+  frame 150 obstacle 2 x: jvm=183.159 browser=505.159 (off by 322.0000)
+  frame 150 obstacle 3 x: jvm=765.438 browser=266.438 (off by 499.0000)
+  frame 200 obstacle 0 x: jvm=235.087 browser=557.087 (off by 322.0000)
+  frame 200 obstacle 1 x: jvm=866.28 browser=367.281 (off by 498.9990)
+  frame 200 obstacle 2 x: jvm=428.777 browser=697.778 (off by 269.0010)
+  frame 200 obstacle 3 x: jvm=328.911 browser=600.91 (off by 271.9990)
+  frame 250 obstacle 0 x: jvm=399.188 browser=668.189 (off by 269.0010)
+  frame 250 obstacle 1 x: jvm=319.824 browser=591.824 (off by 272.0000)
+  frame 250 obstacle 2 x: jvm=740.145 browser=172.145 (off by 568.0000)
+  frame 250 obstacle 3 x: jvm=879.507 browser=167.507 (off by 712.0000)
+  frame 300 obstacle 0 x: jvm=864.691 browser=296.689 (off by 568.0020)
+  frame 300 obstacle 1 x: jvm=863.628 browser=151.63 (off by 711.9980)
+  frame 300 obstacle 2 x: jvm=816.207 browser=603.207 (off by 213.0000)
+  frame 300 obstacle 3 x: jvm=946.708 browser=821.708 (off by 125.0000)
+  frame 360 score: jvm=8 browser=6
+  frame 360 streak: jvm=8 browser=6
+  frame 360 running: jvm=true browser=false
+  … and 44 more
+== F2_shared_constant ==
+
+1 test completed, 1 failed
+
+FAILURE: Build failed with an exception.
+
+* What went wrong:
+Execution failed for task ':engine:test'.
+> There were failing tests. See the report at: file:///Users/lonimua/tapdodge-engine/engine/build/reports/tests/test/index.html
+
+* Try:
+> Run with --scan to get full insights.
+
+BUILD FAILED in 499ms
+warning: Supported source version 'RELEASE_11' from annotation processor 'org.gradle.api.internal.tasks.compile.processing.TimeTrackingProcessor' less than -source '17'
+1 warning
+the JVM and browser builds agree across 11 checkpoints (largest float difference 0.0020, tolerance 0.01)
+== F3_untraced_cadence ==
+warning: Supported source version 'RELEASE_11' from annotation processor 'org.gradle.api.internal.tasks.compile.processing.TimeTrackingProcessor' less than -source '17'
+1 warning
+the JVM and browser builds agree across 11 checkpoints (largest float difference 0.0020, tolerance 0.01)
