@@ -37,7 +37,7 @@ for (let f = 1; f <= plan.frames; f++) {
     const s = JSON.parse(engine.state());
     rows.push(
       `{"frame":${f},"score":${s.score},"streak":${s.streak},` +
-        `"running":${s.running},"over":${s.over},"px":${f3(s.px)},"py":${f3(s.py)},` +
+        `"running":${s.running},"over":${s.over},"runs":${s.runs},"px":${f3(s.px)},"py":${f3(s.py)},` +
         `"obstacles":[${s.obstacles.map(([x, y, size]) => `[${f3(x)},${f3(y)},${f3(size)}]`).join(",")}]}`
     );
   }

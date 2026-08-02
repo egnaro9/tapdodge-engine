@@ -114,6 +114,7 @@ public class ParityTraceTest {
           .append(",\"streak\":").append(e.streak())
           .append(",\"running\":").append(e.isRunning())
           .append(",\"over\":").append(e.isGameOver())
+          .append(",\"runs\":").append(e.runsSinceInterstitial())
           .append(",\"px\":").append(f3(e.playerX()))
           .append(",\"py\":").append(f3(e.playerY()))
           .append(",\"obstacles\":[");

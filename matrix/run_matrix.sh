@@ -36,14 +36,17 @@ LOG="$RESULTS_DIR/run.log"
 JS=web/build/generated/teavm/js/tapdodge.js
 PARITY=engine/build/parity
 
-# Never leave a fault applied, whatever happens.
-restore() { git checkout -- engine/src 2>/dev/null || true; }
-trap restore EXIT
-
+# The dirty check runs BEFORE the trap is armed. The first version armed the
+# trap first, so refusing to run on a dirty tree checked out engine/src and
+# destroyed the uncommitted work the guard existed to protect.
 if [ -n "$(git status --porcelain -- engine/src web/src)" ]; then
   echo "refusing to run: engine/src or web/src is dirty" >&2
   exit 2
 fi
+
+# Never leave a fault applied, whatever happens.
+restore() { git checkout -- engine/src 2>/dev/null || true; }
+trap restore EXIT
 
 # ---- the individual checks; each echoes PASS/FAIL and returns the real exit ----
 

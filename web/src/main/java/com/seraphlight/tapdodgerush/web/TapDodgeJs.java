@@ -93,6 +93,7 @@ public final class TapDodgeJs {
           .append(",\"streak\":").append(engine.streak())
           .append(",\"running\":").append(engine.isRunning())
           .append(",\"over\":").append(engine.isGameOver())
+          .append(",\"runs\":").append(engine.runsSinceInterstitial())
           .append(",\"started\":").append(engine.hasStarted())
           .append(",\"hitFlash\":").append(engine.hitFlashFrames())
           .append(",\"scorePop\":").append(engine.scorePopFrames())

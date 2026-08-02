@@ -45,7 +45,7 @@ for (let i = 0; i < Math.min(jvm.length, js.length); i++) {
   const at = `frame ${a.frame}`;
 
   exact(`${at} frame`, a.frame, b.frame);
-  for (const k of ["score", "streak", "running", "over"]) {
+  for (const k of ["score", "streak", "running", "over", "runs"]) {
     exact(`${at} ${k}`, a[k], b[k]);
   }
   for (const k of ["px", "py"]) {

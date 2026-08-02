@@ -2,6 +2,7 @@ package com.seraphlight.tapdodgerush.engine;
 
 import org.junit.jupiter.api.Test;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
@@ -13,6 +14,18 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
  * next time someone is looking at revenue.
  */
 public class InterstitialCadenceTest {
+
+    /**
+     * The answer key, and deliberately a literal.
+     *
+     * <p>An earlier version of this test derived its expectations from
+     * {@code GameEngine.INTERSTITIAL_EVERY}. The fault matrix (matrix/, row F3) then changed
+     * that constant and this test kept passing, because the expectation moved with the fault —
+     * it was checking that the predicate agrees with the constant, which is always true. A
+     * literal sequence cannot track the code: changing the cadence now has to come here and be
+     * a visible, deliberate act.
+     */
+    private static final boolean[] CUE_AFTER_RUN = {false, false, true};
 
     /** Parks the player and lets an obstacle land, so a run ends without needing to play well. */
     private static long endOneRun(GameEngine e, long from) {
@@ -32,34 +45,30 @@ public class InterstitialCadenceTest {
     }
 
     @Test
-    public void aCueArrivesOnTheThirdCompletedRunAndNotBefore() {
+    public void theCueFollowsTheRecordedCadenceExactly() {
         GameEngine e = fresh();
         assertFalse(e.consumeInterstitialCue(), "cued before any run had ended");
 
         long t = 0;
-        for (int run = 1; run < GameEngine.INTERSTITIAL_EVERY; run++) {
+        for (int run = 1; run <= CUE_AFTER_RUN.length; run++) {
             t = endOneRun(e, t) + 1_000;
-            assertFalse(e.consumeInterstitialCue(),
-                    "cued after only " + run + " completed runs; the interval is "
-                            + GameEngine.INTERSTITIAL_EVERY);
-            e.start(t);
+            assertEquals(CUE_AFTER_RUN[run - 1], e.consumeInterstitialCue(),
+                    "cue after " + run + " completed runs disagrees with the recorded cadence");
+            if (run < CUE_AFTER_RUN.length) e.start(t);
         }
-
-        endOneRun(e, t);
-        assertTrue(e.consumeInterstitialCue(),
-                "no cue after " + GameEngine.INTERSTITIAL_EVERY + " completed runs");
     }
 
     @Test
     public void theCueIsSpentByReadingIt() {
         GameEngine e = fresh();
         long t = 0;
-        for (int run = 1; run <= GameEngine.INTERSTITIAL_EVERY; run++) {
+        for (int run = 1; run <= CUE_AFTER_RUN.length; run++) {
             t = endOneRun(e, t) + 1_000;
-            if (run < GameEngine.INTERSTITIAL_EVERY) e.start(t);
+            if (run < CUE_AFTER_RUN.length) e.start(t);
         }
 
-        assertTrue(e.consumeInterstitialCue(), "precondition: the third run should cue");
+        assertTrue(e.consumeInterstitialCue(),
+                "precondition: the last recorded run should cue");
         assertFalse(e.consumeInterstitialCue(),
                 "the cue survived being read — a caller that checks twice shows two ads");
     }
@@ -85,9 +94,10 @@ public class InterstitialCadenceTest {
         e.useContinue(died + 500);          // one death, paid for with a rewarded ad
         long t = endOneRun(e, died + 1_000);  // the resumed run then ends for real: that is run 1
 
-        // Two more complete runs brings the honest total to INTERSTITIAL_EVERY - 1 + 1 = 3 only
-        // if the continued death was NOT double counted. Assert the run before the cue is quiet.
-        for (int more = 1; more < GameEngine.INTERSTITIAL_EVERY - 1; more++) {
+        // Complete runs up to one before the recorded cue. The honest total reaches the
+        // cadence only if the continued death was NOT double counted. Assert the run before
+        // the cue is quiet.
+        for (int more = 1; more < CUE_AFTER_RUN.length - 1; more++) {
             e.start(t + 1_000);
             t = endOneRun(e, t + 1_000);
         }
@@ -98,7 +108,7 @@ public class InterstitialCadenceTest {
         e.start(t + 1_000);
         endOneRun(e, t + 1_000);
         assertTrue(e.consumeInterstitialCue(),
-                "no cue after " + GameEngine.INTERSTITIAL_EVERY + " honest runs");
+                "no cue after " + CUE_AFTER_RUN.length + " honest runs");
     }
 
     /** Steers away from the nearest obstacle above the player, which is enough to score. */

@@ -263,6 +263,16 @@ public final class GameEngine {
         return true;
     }
 
+    /**
+     * Completed runs since the last interstitial cue, exposed read-only so the parity trace
+     * can record it. The fault matrix (matrix/) showed this counter was invisible to every
+     * trace-based check — a cadence fault produced identical traces because the schema never
+     * carried the state the cadence rule reads.
+     */
+    public int runsSinceInterstitial() {
+        return runsSinceInterstitial;
+    }
+
     /** A continue is offered once per run, and only after the run was worth continuing. */
     public boolean canUseContinue() {
         return gameOver && !usedContinueThisRun && score >= MIN_CONTINUE_SCORE;
