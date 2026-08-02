@@ -1,0 +1,13 @@
+{
+  "name": "tapdodge-e2e",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "site": "bash ../tools/deploy_site.sh \"$PWD/.site\"",
+    "test": "playwright test",
+    "pretest": "npm run site"
+  },
+  "devDependencies": {
+    "@playwright/test": "^1.49.0"
+  }
+}

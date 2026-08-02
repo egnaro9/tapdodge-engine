@@ -181,6 +181,12 @@ function begin() {
 function boot() {
   fit();
   engine.create(0, W, H);   // the only setBounds this page performs
+  // Deliberate test seam: the e2e suite drives REAL pointer events and uses the
+  // engine's own state() as its oracle. Read-only BY CONSTRUCTION — exposing the
+  // whole engine let a console visitor forge the best score and brick the page
+  // (cold-critic finding), and would let a lazy test cause state instead of
+  // observing it.
+  window.__tapdodge = Object.freeze({ state: () => engine.state() });
   musicButton();     // reflect the stored preference; do NOT touch audio before a gesture
   document.getElementById("mute").addEventListener("click", () => setMuted(!muted));
   engine.setBestScore(Number(localStorage.getItem(BEST_KEY) || 0));
