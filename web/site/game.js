@@ -45,7 +45,7 @@ function pointerX(ev) {
 // invokes it — so the sounds an earlier version used are orphaned assets. Playing them here
 // would give the browser build feedback the phone does not have.
 let bgm = null;
-let muted = localStorage.getItem("tapdodge:muted") === "1";
+let muted = sessionStorage.getItem("tapdodge:muted") === "1";
 
 function musicButton() {
   const btn = document.getElementById("mute");
@@ -73,7 +73,7 @@ function stopMusic() {
 
 function setMuted(next) {
   muted = next;
-  localStorage.setItem("tapdodge:muted", muted ? "1" : "0");
+  sessionStorage.setItem("tapdodge:muted", muted ? "1" : "0");
   if (muted) stopMusic();
   else if (started) startMusic();
   musicButton();
