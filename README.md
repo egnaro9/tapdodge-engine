@@ -1,11 +1,11 @@
 # tapdodge-engine
 
 The rules engine behind [Tap Dodge Rush](https://play.google.com/store/apps/details?id=com.seraphlight.tapdodgerush),
-compiled twice: once by `javac` for the Android app, once by [TeaVM](https://teavm.org) for the
-browser. **[Play the browser build](https://egnaro9.github.io/seraphlight-studios/tap-dodge-rush/play/).**
+`javac` compiles the rules, then Android dexes that bytecode and [TeaVM](https://teavm.org)
+translates it to JavaScript for the browser. **[Play the browser build](https://egnaro9.github.io/seraphlight-studios/tap-dodge-rush/play/).**
 
 The interesting part is not that it compiles to two targets. It is that a test can tell you
-when the two targets stop agreeing — and that when I wrote that test, they had already stopped.
+when the JVM and JavaScript builds stop agreeing, and that when I wrote that test, they had already stopped.
 
 ## The bug this repo is shaped around
 
@@ -52,7 +52,7 @@ Three pieces, arranged so neither side can quietly drift:
    a typo in one would look like an engine disagreement.
 3. [`tools/compare_trace.mjs`](tools/compare_trace.mjs) diffs the two traces. Score, streak,
    run state and obstacle counts must match **exactly**. Floats are compared to 0.01px,
-   which is 5× the largest rounding difference actually observed between the two compilers
+   which is 5× the largest rounding difference actually observed between the two runtimes
    and ~10,000× smaller than the bug above.
 
 The Node script imports `web/build/generated/teavm/js/tapdodge.js` — the artifact the web
@@ -72,16 +72,18 @@ The full story, with the two blind tests and what replaced them, is in
 Reverting `Rng` to `java.util.Random` and re-running — or, without touching any code, diffing against the recording of that build committed at [`docs/diverged-trace.json`](docs/diverged-trace.json):
 
 ```
-the two builds disagree (69 differences):
+the two builds disagree (80 differences):
+  frame 30  runs:         jvm=0       browser=undefined
   frame 60  obstacle 0 x: jvm=405.426 browser=304.426 (off by 101.0000)
   frame 90  obstacle 1 x: jvm=438.177 browser=74.177  (off by 364.0000)
   …
   frame 250 obstacle 3 x: jvm=879.507 browser=167.507 (off by 712.0000)
-  frame 360 score:        jvm=8       browser=6
-  frame 360 running:      jvm=true    browser=false
-  … and 44 more
+  … and 55 more
 ```
-(excerpted — the comparator prints the first 25 and a count)
+(excerpted; the comparator prints the first 25 and a count. Measured 2026-08-19.
+Eleven of the 80 are `runs` rows reading `browser=undefined`: the committed
+recording predates the `runs` checkpoint, so those rows report a stale artifact
+rather than the seeded-generator bug. The other 69 are the bug.)
 
 The golden-file assertion **passed** during that same run. It had to: the JVM's
 `java.util.Random` produces exactly what the hand-written LCG produces, so the JVM trace was
