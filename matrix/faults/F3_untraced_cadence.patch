@@ -1,9 +1,9 @@
 diff --git a/engine/src/main/java/com/seraphlight/tapdodgerush/engine/GameEngine.java b/engine/src/main/java/com/seraphlight/tapdodgerush/engine/GameEngine.java
-index 7cc87fe..c8d0ada 100644
+index a32da11..ca00625 100644
 --- a/engine/src/main/java/com/seraphlight/tapdodgerush/engine/GameEngine.java
 +++ b/engine/src/main/java/com/seraphlight/tapdodgerush/engine/GameEngine.java
-@@ -40,7 +40,7 @@ public final class GameEngine {
-      * built on — the value of "one more try" is that nothing stands between the tap and the
+@@ -60,7 +60,7 @@ public final class GameEngine {
+      * built on: the value of "one more try" is that nothing stands between the tap and the
       * next run.
       */
 -    public static final int INTERSTITIAL_EVERY = 3;
