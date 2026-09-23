@@ -14,11 +14,12 @@ node tools/compare_trace.mjs \
 ```
 
 ```
-the two builds disagree (69 differences):
-  frame 60  obstacle 0 x: jvm=405.426 browser=304.426 (off by 101.0000)
-  frame 250 obstacle 3 x: jvm=879.507 browser=167.507 (off by 712.0000)
-  frame 360 score:        jvm=8       browser=6
-  frame 360 running:      jvm=true    browser=false
+the two builds disagree (109 differences):
+  frame 60 obstacle 0 x: jvm=405.426 browser=304.426 (off by 101.0000)
+  frame 90 obstacle 1 x: jvm=438.177 browser=74.177 (off by 364.0000)
+  frame 150 obstacle 3 x: jvm=765.438 browser=266.438 (off by 499.0000)
+  frame 200 score: jvm=1 browser=2
+  … and 105 more
 ```
 
 The JVM side of that comparison is the *current* engine — which is the point. The JVM's output

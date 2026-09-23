@@ -72,13 +72,12 @@ The full story, with the two blind tests and what replaced them, is in
 Reverting `Rng` to `java.util.Random` and re-running — or, without touching any code, diffing against the recording of that build committed at [`docs/diverged-trace.json`](docs/diverged-trace.json):
 
 ```
-the two builds disagree (80 differences):
-  frame 30  runs:         jvm=0       browser=undefined
-  frame 60  obstacle 0 x: jvm=405.426 browser=304.426 (off by 101.0000)
-  frame 90  obstacle 1 x: jvm=438.177 browser=74.177  (off by 364.0000)
-  …
-  frame 250 obstacle 3 x: jvm=879.507 browser=167.507 (off by 712.0000)
-  … and 55 more
+the two builds disagree (109 differences):
+  frame 60 obstacle 0 x: jvm=405.426 browser=304.426 (off by 101.0000)
+  frame 90 obstacle 1 x: jvm=438.177 browser=74.177 (off by 364.0000)
+  frame 150 obstacle 3 x: jvm=765.438 browser=266.438 (off by 499.0000)
+  frame 200 score: jvm=1 browser=2
+  … and 105 more
 ```
 (excerpted; the comparator prints the first 25 and a count. Measured 2026-08-19.
 Eleven of the 80 are `runs` rows reading `browser=undefined`: the committed
