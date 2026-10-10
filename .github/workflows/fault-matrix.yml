@@ -1,0 +1,72 @@
+# Runs the fault-by-check matrix and holds it against matrix/expected.tsv.
+#
+# Separate from ci.yml on purpose. The matrix patches engine/src, rebuilds both artifacts
+# four times and reverts under a trap, so it wants its own check name and its own artifact
+# rather than being a step inside the build. It is also deliberately not a `needs:` of the
+# build job: a job skipped because something it needed failed is reported as skipped, and
+# GitHub documents that a skipped required check may not block merging. A gate that
+# disappears when the build breaks is not a gate.
+#
+# For the same reason there is no `if:` on the job and no paths filter. A job skipped by
+# its own condition reports success, which is the quietest way for this to stop checking
+# anything. The whole run is 42s cold on an empty Gradle home, so there is nothing to save.
+name: fault-matrix
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  matrix:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v7
+
+      - uses: actions/setup-java@v6
+        with:
+          distribution: temurin
+          java-version: "17"
+
+      - uses: actions/setup-node@v7
+        with:
+          node-version: "24"
+
+      - uses: gradle/actions/setup-gradle@v6
+
+      # First, and without building anything: prove the gate can fail. verify_matrix.mjs is
+      # a monitor over a clean run, so it passes by default and would pass just as happily
+      # with its comparison deleted. This plants a defect per failure mode and asserts each
+      # one is caught. If this step is red the matrix result below means nothing.
+      - name: Prove the gate's predicate still bites
+        run: node --test matrix/verify_matrix.test.mjs
+
+      # matrix/results/ is committed, stamped August, and cited by the field note. Leaving
+      # it in place would let the verifier read a two-month-old answer and report green
+      # without a single check having run. The verifier has its own staleness guard; this
+      # removes the file it would have to guard against.
+      - name: Remove the committed results so nothing stale can be verified
+        run: rm -rf matrix/results
+
+      # Exits 0 whatever the checks did. That is the point: it records, the next step
+      # judges. Nonzero here means the harness itself refused to run, which is also fatal.
+      - name: Run the fault matrix
+        run: matrix/run_matrix.sh
+
+      - name: Hold the matrix against the answer key
+        run: node matrix/verify_matrix.mjs
+
+      # On success these are the evidence behind the gate; on failure they are the only way
+      # to see which cell moved and why. Wanted either way, so always() rather than
+      # failure().
+      - name: Upload the matrix output
+        if: always()
+        uses: actions/upload-artifact@v7
+        with:
+          name: fault-matrix
+          path: matrix/results/

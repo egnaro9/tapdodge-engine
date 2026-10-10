@@ -1,0 +1,52 @@
+# The answer key for matrix/run_matrix.sh. Checked by matrix/verify_matrix.mjs.
+#
+# run_matrix.sh records exit codes into a table and then exits 0 whatever those codes
+# were. It is a recorder, not a check. So a CI job that runs it and reads $? proves only
+# that the harness did not crash, which is the same defect the matrix exists to document:
+# a check whose expected value comes from the thing it is checking.
+#
+# This file is the independent expectation. It is a literal, the way
+# InterstitialCadenceTest's CUE_AFTER_RUN is a literal instead of being derived from
+# INTERSTITIAL_EVERY. Nothing generates it. If a cell below disagrees with a real run,
+# one of three things is true and all three need a human:
+#   1. a check regressed and stopped firing,
+#   2. a check improved and started firing, or
+#   3. docs/field-note-fault-matrix.md and the published article are now wrong.
+#
+# The cells are the re-run table in docs/field-note-fault-matrix.md ("The re-run"), the
+# state after 2b2bfb7 fixed the two blindnesses the first run found. The first-run table
+# in that same note is history and is NOT what this key pins: it had F3 U=pass.
+#
+# Columns, per run_matrix.sh:
+#   S  GameEngineTest.theSameSeedProducesTheSameRun   same-runtime determinism
+#   G  ParityTraceTest                               golden file
+#   D  node compare_trace.mjs over the TeaVM artifact differential
+#   U  InterstitialCadenceTest                       the cadence unit test (footnote column)
+#
+# Why each row reads the way it does:
+#   baseline  nothing injected, so every check must be green. This row is the only one
+#             that proves the harness can report a pass at all.
+#   F1        caught ONLY by D. S compares the JVM to itself and the golden file's JVM
+#             side never moves, so neither can see the runtimes disagree.
+#   F2        caught ONLY by G. Both builds compile the moved constant, so they move
+#             together and D sees agreement.
+#   F3        caught ONLY by U, and only since 2b2bfb7. G and D stay green on purpose:
+#             the scripted run dies once, so runsSinceInterstitial reads 0 then 1 and
+#             never approaches any threshold. Recording a field is not covering a
+#             behaviour, and this row is the evidence for that sentence.
+#
+# S is pass on all four rows. That column cannot distinguish anything, which is the
+# finding, not a gap in the key. It stays here so that an S that ever goes red is loud.
+#
+# ERROR is not a legal value in this file. ERROR is run_matrix.sh's word for "the harness
+# broke" (exit 3, a failed build or a dead node step), and a key that could accept it
+# would let a broken harness satisfy the gate. verify_matrix.mjs rejects it on both sides.
+#
+# Whitespace-separated, five fields per row. Add a row here when you add a patch to
+# matrix/faults/ and a case to run_matrix.sh; the verifier cross-checks this file against
+# the patches on disk, so a patch with no row and a row with no patch both go red.
+case	S	G	D	U
+baseline	pass	pass	pass	pass
+F1_runtime_supplied_rng	pass	pass	FAIL	pass
+F2_shared_constant	pass	FAIL	pass	pass
+F3_untraced_cadence	pass	pass	pass	FAIL
