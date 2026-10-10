@@ -67,6 +67,14 @@ like a bug that was not there.
 The full story, with the two blind tests and what replaced them, is in
 [`docs/field-note-determinism.md`](docs/field-note-determinism.md).
 
+Those checks were then tested against each other. Three faults were injected into real
+rebuilds of both artifacts to find out whether the checks cover different failure modes or
+the same one three times, with the predictions written down first. One fault was caught
+only by the differential, one only by the golden, and one by nothing at all, including the
+unit test aimed directly at it. The harness is in [`matrix/`](matrix/) and the write-up,
+with the row I got wrong and the second prediction that closed it, is in
+[`docs/field-note-fault-matrix.md`](docs/field-note-fault-matrix.md).
+
 ### It was falsified before being trusted
 
 Reverting `Rng` to `java.util.Random` and re-running — or, without touching any code, diffing against the recording of that build committed at [`docs/diverged-trace.json`](docs/diverged-trace.json):
